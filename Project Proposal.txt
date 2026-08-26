@@ -1,0 +1,40 @@
+Here's the project proposal that we should finish before Monday comes in:
+
+Link for Word Document: https://myunt-my.sharepoint.com/:w:/r/personal/xavierrosado_my_unt_edu/Documents/Team4_Proposal.docx?d=w30e8a6c600ec451a9d278485936814ed&csf=1&web=1&e=laXGPA 
+
+Explain your project idea in simple words. Add your Round Robin pages to the document.
+
+One document (.docx or .pdf)
+
+File name: Team#_Proposal 
+
+One team submission on Canvas
+
+Keep it simple – Use short sentences. No technical details.
+
+1) Problem
+What is the problem? Who has this problem? Why does it matter?
+
+2) Who will use it?
+Be specific. 
+
+3) What will it do?
+Start each line with “It will…” and finish with “…so people can ___.”
+
+It will ______ so people can ______.
+
+It will ______ so people can ______.
+
+It will ______ so people can ______.
+
+(add up to 5 total)
+
+4) Example of User Story
+Write a story of one person using it from start to finish.
+
+“A ___ opens it to ___. They ___. This helps them ___.”
+
+5) Round Robin (2 Pages)
+ 
+
+Due date: Monday, August 31, 11:59 pm
