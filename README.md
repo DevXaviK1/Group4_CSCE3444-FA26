@@ -4,11 +4,16 @@ Project Idea: A Mobile Application that helps gardeners how to properly garden w
 grow their skills.
 
 Team Roster:
+
 Pete Maselli
+
 Sudip Khadka
+
 Xavier Rosado
+
 
 Link for GitHub Project:
 
 Current Status:
+
 Initial Proposal and Repository Setup Completed
