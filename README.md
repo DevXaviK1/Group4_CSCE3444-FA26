@@ -5,11 +5,11 @@ grow their skills.
 
 Team Roster:
 
-Pete Maselli
+Pete Maselli - TBD
 
-Sudip Khadka
+Sudip Khadka - TBD
 
-Xavier Rosado
+Xavier Rosado - TBD
 
 
 Link for GitHub Project:
