@@ -1,4 +1,4 @@
-Team Name: Group 4
+Team Name: Green Thumb
 
 Project Idea: A Mobile Application that helps gardeners how to properly garden when they want to learn and
 grow their skills.
