@@ -12,7 +12,7 @@ Sudip Khadka - TBD
 Xavier Rosado - TBD
 
 
-**Link for GitHub Project**:  https://github.com/DevXaviK1/Group4_CSCE3444-FA26/tree/main
+**Link for GitHub Project**:  https://github.com/users/DevXaviK1/projects/1
 
 Current Status:
 
