@@ -1,4 +1,4 @@
-Team Name: Green Thumb
+Team Name: Mean Green Thumb
 
 Project Idea: A web application that helps gardeners how to properly garden when they want to learn and
 grow their skills.
@@ -17,3 +17,4 @@ Xavier Rosado - DevXaviK1- GitGuru
 Current Status:
 
 Initial Proposal and Repository Setup Completed
+Project Plan completed
