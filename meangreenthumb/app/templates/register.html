@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Register — Mean Green Thumb{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h2>Create an Account</h2>
+    <form method="POST" action="{{ url_for('auth.register') }}">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+
+      <label for="zip_code">Zip code</label>
+      <input type="text" id="zip_code" name="zip_code" maxlength="5" required>
+
+      <button type="submit">Submit</button>
+    </form>
+    <p><a href="{{ url_for('auth.login') }}">Already have an account? Log in</a></p>
+  </div>
+{% endblock %}

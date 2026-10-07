@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Home — Mean Green Thumb{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <p>Find out what grows well where you live, and get a personalized plan to grow it.</p>
+
+    <form method="POST" action="{{ url_for('main.home') }}">
+      <label for="zip_code">Enter your zip code</label>
+      <input type="text" id="zip_code" name="zip_code" maxlength="5" required>
+      <button type="submit">Submit</button>
+    </form>
+
+    {% if zone_code %}
+      <div class="result-box">
+        <p>Your Growing Zone: <strong>{{ zone_code }}</strong></p>
+        <a href="#">View Plant Suggestions &rarr;</a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
