@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>My Plants</h1>
+
+{% if entries %}
+<table>
+  <thead>
+    <tr>
+      <th>Plant</th>
+      <th>Planted</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for entry in entries %}
+    <tr>
+      <td>
+        {# UC-09: link this name to the care task checklist for entry.saved_plant_id #}
+        {{ entry.plant.name }}
+      </td>
+      <td>{{ entry.planting_date.strftime("%b %d, %Y") if entry.planting_date else "—" }}</td>
+      <td>
+        <form method="post" action="{{ url_for('my_plants.remove', saved_plant_id=entry.saved_plant_id) }}">
+          <button type="submit">Remove</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>You haven't added any plants yet. Add one from your plant suggestions.</p>
+{% endif %}
+{% endblock %}
