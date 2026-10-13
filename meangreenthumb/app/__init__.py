@@ -23,10 +23,14 @@ def create_app():
     from app.routes.main import main_bp
     from app.routes.auth import auth_bp
     from app.routes.my_plants import my_plants_bp
+    from app.routes.care_tasks import care_tasks_bp
+    from app.routes.tips import tips_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(my_plants_bp)
+    app.register_blueprint(care_tasks_bp)
+    app.register_blueprint(tips_bp)
 
     with app.app_context():
         db.create_all()
