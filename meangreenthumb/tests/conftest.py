@@ -10,6 +10,7 @@ from jinja2 import ChoiceLoader, DictLoader, FileSystemLoader
 import app as app_pkg
 from app import db
 from app.models import GrowingZone, Plant, User
+from app.routes.care_tasks import care_tasks_bp
 from app.routes.my_plants import my_plants_bp
 
 TEMPLATES = Path(app_pkg.__file__).parent / "templates"
@@ -38,6 +39,7 @@ def flask_app():
         return db.session.get(User, int(user_id))
 
     test_app.register_blueprint(my_plants_bp)
+    test_app.register_blueprint(care_tasks_bp)
 
     with test_app.app_context():
         db.create_all()

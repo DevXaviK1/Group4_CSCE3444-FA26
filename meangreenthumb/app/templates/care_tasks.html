@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ entry.plant.name }} — Care Checklist</h1>
+<p><a href="{{ url_for('my_plants.index') }}">&larr; Back to My Plants</a></p>
+
+<p>
+  Planted: {{ entry.planting_date.strftime("%b %d, %Y") if entry.planting_date else "not set" }}
+  &middot; {{ done }} of {{ tasks|length }} done
+</p>
+
+<ul style="list-style: none; padding: 0;">
+  {% for task in tasks %}
+  {% set overdue = task.is_overdue(today) %}
+  <li style="padding: 6px 8px; margin-bottom: 4px;{% if overdue %} background: #fdecea;{% endif %}">
+    <form method="post"
+          action="{{ url_for('care_tasks.set_complete', task_id=task.task_id) }}"
+          style="display: inline;">
+      <input type="hidden" name="completed" value="{{ 0 if task.completed else 1 }}">
+      <button type="submit">{{ "Undo" if task.completed else "Mark done" }}</button>
+    </form>
+    <span{% if task.completed %} style="text-decoration: line-through; opacity: 0.6;"{% endif %}>
+      {{ task.task_description }}
+    </span>
+    &mdash;
+    {% if task.due_date %}due {{ task.due_date.strftime("%b %d, %Y") }}{% else %}no due date{% endif %}
+    {% if overdue %}<strong>(Overdue)</strong>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

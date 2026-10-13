@@ -15,8 +15,7 @@
     {% for entry in entries %}
     <tr>
       <td>
-        {# UC-09: link this name to the care task checklist for entry.saved_plant_id #}
-        {{ entry.plant.name }}
+        <a href="{{ url_for('care_tasks.checklist', saved_plant_id=entry.saved_plant_id) }}">{{ entry.plant.name }}</a>
       </td>
       <td>{{ entry.planting_date.strftime("%b %d, %Y") if entry.planting_date else "—" }}</td>
       <td>
