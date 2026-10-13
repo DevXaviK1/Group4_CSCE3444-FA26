@@ -12,6 +12,7 @@ from app import db
 from app.models import GrowingZone, Plant, User
 from app.routes.care_tasks import care_tasks_bp
 from app.routes.my_plants import my_plants_bp
+from app.routes.tips import tips_bp
 
 TEMPLATES = Path(app_pkg.__file__).parent / "templates"
 
@@ -40,16 +41,20 @@ def flask_app():
 
     test_app.register_blueprint(my_plants_bp)
     test_app.register_blueprint(care_tasks_bp)
+    test_app.register_blueprint(tips_bp)
 
     with test_app.app_context():
         db.create_all()
         zone = GrowingZone(zone_code="8a")
-        db.session.add(zone)
+        other_zone = GrowingZone(zone_code="9b")
+        db.session.add_all([zone, other_zone])
         db.session.flush()
         db.session.add_all(
             [
                 User(user_id=1, email="a@test.com", password_hash="x", zone_id=zone.zone_id),
                 User(user_id=2, email="b@test.com", password_hash="x", zone_id=zone.zone_id),
+                User(user_id=3, email="c@test.com", password_hash="x"),  # no zone set
+                User(user_id=4, email="d@test.com", password_hash="x", zone_id=other_zone.zone_id),
                 Plant(plant_id=1, name="Tomato"),
                 Plant(plant_id=2, name="Basil"),
             ]
