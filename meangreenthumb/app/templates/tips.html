@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Community Tips</h1>
+
+{% if zone %}
+<form method="post" action="{{ url_for('tips.create') }}">
+  <label for="tip-text">Share a tip with the community</label><br>
+  <textarea id="tip-text" name="text" rows="3" cols="50" maxlength="{{ max_length }}" required></textarea><br>
+  <button type="submit">Post tip</button>
+</form>
+{% else %}
+<p>Set your growing zone first to post a tip.</p>
+{# TODO: link to the zip code / zone lookup page here #}
+{% endif %}
+
+{% if tips %}
+<ul style="list-style: none; padding: 0;">
+  {% for tip in tips %}
+  <li class="tip" style="margin: 12px 0;">
+    <div style="white-space: pre-wrap;">{{ tip.text }}</div>
+    <small>Gardener #{{ tip.user_id }} &middot; Zone {{ zone_codes.get(tip.zone_id, "?") }} &middot; {{ tip.timestamp.strftime("%b %d, %Y %I:%M %p") }} UTC</small>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No tips yet. Be the first to share one.</p>
+{% endif %}
+{% endblock %}
