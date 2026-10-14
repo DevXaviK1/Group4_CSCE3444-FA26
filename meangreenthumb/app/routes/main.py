@@ -70,13 +70,10 @@ def weather_forecast():
 
 
 @main_bp.route("/weather/alerts", methods=["GET"])
+@login_required
 def alert_details():
-    """UC-05: Severe Weather Alert Details Screen (Figure 8)."""
-    zip_code = None
-    if current_user.is_authenticated and current_user.zip_code:
-        zip_code = current_user.zip_code
-    else:
-        zip_code = request.args.get("zip_code")
+    """UC-05: Severe Weather Alert Details Screen (Figure 8). Registered users only."""
+    zip_code = current_user.zip_code or request.args.get("zip_code")
 
     if not zip_code:
         return redirect(url_for("main.weather_forecast"))

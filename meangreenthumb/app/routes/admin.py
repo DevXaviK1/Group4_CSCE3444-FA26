@@ -13,7 +13,7 @@ admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 def user_management():
     if not current_user.is_admin:
         flash("Unauthorized: Administrator access required.", "danger")
-        return redirect(url_for("weather.forecast_view"))
+        return redirect(url_for("main.weather_forecast"))
 
     search = request.args.get("search", "").strip()
     query = User.query
@@ -29,7 +29,7 @@ def user_management():
 def suspend_user(user_id: int):
     if not current_user.is_admin:
         flash("Unauthorized: Administrator access required.", "danger")
-        return redirect(url_for("weather.forecast_view"))
+        return redirect(url_for("main.weather_forecast"))
 
     target_user = db.session.get(User, user_id)
     if not target_user:
@@ -59,7 +59,7 @@ def suspend_user(user_id: int):
 def reactivate_user(user_id: int):
     if not current_user.is_admin:
         flash("Unauthorized: Administrator access required.", "danger")
-        return redirect(url_for("weather.forecast_view"))
+        return redirect(url_for("main.weather_forecast"))
 
     target_user = db.session.get(User, user_id)
     if not target_user:

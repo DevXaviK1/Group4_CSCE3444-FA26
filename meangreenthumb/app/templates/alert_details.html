@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<a href="{{ url_for('weather.forecast_view', zip_code=zip_code) }}">&larr; Weather</a>
+<a href="{{ url_for('main.weather_forecast', zip_code=zip_code) }}">&larr; Weather</a>
 <h2>Alert Details — Zip {{ zip_code }}</h2>
 
 {% if alerts %}
