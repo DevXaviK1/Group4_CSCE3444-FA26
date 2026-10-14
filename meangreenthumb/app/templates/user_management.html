@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>User Management</h2>
+
+<form method="GET" action="{{ url_for('admin.user_management') }}" style="margin-bottom: 15px;">
+  <input type="text" name="search" value="{{ search }}" placeholder="Search by email">
+  <button type="submit">Search</button>
+</form>
+
+{% for user in users %}
+  <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+    <strong>{{ user.email }}</strong> — 
+    {% if user.is_suspended %}
+      <span style="color: red; font-weight: bold;">Suspended</span>
+      <form method="POST" action="{{ url_for('admin.reactivate_user', user_id=user.user_id) }}" style="display:inline;">
+        <button type="submit">Reactivate</button>
+      </form>
+    {% else %}
+      <span style="color: green; font-weight: bold;">Active</span>
+      {% if not user.is_admin and user.user_id != current_user.user_id %}
+        <form method="POST" action="{{ url_for('admin.suspend_user', user_id=user.user_id) }}" style="margin-top: 5px;">
+          <label>Also remove user's tips?</label>
+          <input type="radio" name="remove_tips" value="yes"> Yes
+          <input type="radio" name="remove_tips" value="no" checked> No
+          <button type="submit" style="color: red;">Suspend</button>
+        </form>
+      {% endif %}
+    {% endif %}
+  </div>
+{% endfor %}
+{% endblock %}

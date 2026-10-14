@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="{{ url_for('weather.forecast_view', zip_code=zip_code) }}">&larr; Weather</a>
+<h2>Alert Details — Zip {{ zip_code }}</h2>
+
+{% if alerts %}
+  {% for alert in alerts %}
+    <div style="border: 1px solid #000; padding: 15px; margin-bottom: 15px;">
+      <h3>Event: {{ alert.event }}</h3>
+      <p><strong>Headline:</strong> {{ alert.headline or 'N/A' }}</p>
+      <p><strong>Onset:</strong> {{ alert.onset }} | <strong>Expires:</strong> {{ alert.expires }}</p>
+      <p><strong>Affected Area:</strong> {{ alert.area }}</p>
+      <p><strong>Description:</strong> {{ alert.description }}</p>
+    </div>
+  {% endfor %}
+{% else %}
+  <p>Status: no active alert for your zip code</p>
+{% endif %}
+
+<p style="font-size: 0.9em; color: #555;">
+  Alert emails are sent to your registered email when a new or escalated Freeze Watch, Freeze Warning, or Frost Advisory is issued.
+</p>
+{% endblock %}
