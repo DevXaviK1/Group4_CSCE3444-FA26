@@ -63,6 +63,13 @@ def login():
             flash("Incorrect email or password.")
             return render_template("login.html")
 
+        # Block login if the account has been suspended by an admin
+        if user.is_suspended:
+            flash(
+                "Your account has been suspended. Please contact an administrator."
+            )
+            return render_template("login.html")
+
         login_user(user)
         return redirect(url_for("main.home"))
 

@@ -21,7 +21,7 @@ def user_management():
         query = query.filter(User.email.ilike(f"%{search}%"))
     users = query.all()
 
-    return render_template("admin/user_management.html", users=users, search=search)
+    return render_template("user_management.html", users=users, search=search)
 
 
 @admin_bp.route("/users/<int:user_id>/suspend", methods=["POST"])
