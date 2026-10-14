@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from flask_login import UserMixin
 from app import db
 
@@ -30,6 +30,9 @@ class User(UserMixin, db.Model):
     zip_code = db.Column(db.String(5))
     zone_id = db.Column(db.Integer, db.ForeignKey("growing_zone.zone_id"))
     notifications_enabled = db.Column(db.Boolean, default=False)
+
+    is_admin = db.Column(db.Boolean, default=False)
+    is_suspended = db.Column(db.Boolean, default=False)
 
     growing_zone = db.relationship("GrowingZone", back_populates="users")
     saved_plants = db.relationship("SavedPlant", back_populates="user", cascade="all, delete-orphan")
@@ -103,19 +106,34 @@ class WeatherAlert(db.Model):
     user = db.relationship("User", back_populates="alerts")
 
 
-class ZoneWeatherStatus(db.Model):
+class ZipWeatherStatus(db.Model):
     """
-    NOT in the original ER Diagram / Class Diagram -- added here to support
-    the Scheduler (FR-05). Tracks the last known freeze/frost status per
-    zone so the scheduler doesn't re-send the same alert every 3-hour cycle
-    while a Watch or Warning is still active.
-
-    TODO (whoever updates the SRS/design doc): add this table to the ER
-    Diagram and a matching class to the Class Diagram.
+    Per SDD Revision 1.1 / ER Diagram:
+    Tracks the last known freeze/frost status per ZIP code to prevent
+    duplicate alert emails during the 3-hour scheduler cycle.
     """
-    __tablename__ = "zone_weather_status"
-    zone_id = db.Column(db.Integer, db.ForeignKey("growing_zone.zone_id"), primary_key=True)
+    __tablename__ = "zip_weather_status"
+    zip_code = db.Column(db.String(5), primary_key=True)
     status = db.Column(db.String(20), default="none")  # "none" | "watch" | "warning"
-    last_checked_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_checked_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
-    zone = db.relationship("GrowingZone")
+    SEVERITY_ORDER = {"none": 0, "watch": 1, "warning": 2}
+
+    def has_escalated(self, new_status: str) -> bool:
+        """Return True if new_status is more severe than the stored status."""
+        current_rank = self.SEVERITY_ORDER.get(self.status, 0)
+        new_rank = self.SEVERITY_ORDER.get(new_status, 0)
+        return new_rank > current_rank
+
+    def update_status(self, new_status: str) -> None:
+        """Update the status string and advance last_checked_at."""
+        self.status = new_status
+        self.last_checked_at = datetime.now(timezone.utc)
+
+class WeatherCache(db.Model):
+    """Fallback cache for UC-04 forecast data."""
+    __tablename__ = "weather_cache"
+
+    zip_code = db.Column(db.String(5), primary_key=True)
+    payload = db.Column(db.Text, nullable=False)  # JSON-encoded forecast
+    fetched_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))

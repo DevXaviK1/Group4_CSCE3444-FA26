@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Weather — Zip {{ zip_code }}</h2>
+
+{% if active_alert and current_user.is_authenticated %}
+  <div class="alert-banner" style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px; margin-bottom: 15px;">
+    <p style="margin: 0 0 5px 0;"><strong>⚠️ Freeze Alert active for your area!</strong></p>
+    <a href="{{ url_for('main.alert_details', zip_code=zip_code) }}" style="color: #533f03; font-weight: bold;">View alert details &rarr;</a>
+  </div>
+{% endif %}
+
+{% if forecast %}
+  {% if forecast.outdated %}
+    <div style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 8px; margin-bottom: 12px;">
+      Notice: Data may be outdated.
+    </div>
+  {% endif %}
+
+  <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+    <h3>Current Conditions</h3>
+    <p>{{ forecast.current.temperature }}°{{ forecast.current.unit }} — {{ forecast.current.summary }}</p>
+    <p>Precipitation Chance: {{ forecast.current.precip_chance or 0 }}%</p>
+  </div>
+
+  <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+    <h3>5-Day Forecast</h3>
+    <ul>
+      {% for day in forecast.daily %}
+        <li><strong>{{ day.name }}:</strong> {{ day.temperature }}°{{ day.unit }} — {{ day.summary }} (Precip: {{ day.precip_chance or 0 }}%)</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% else %}
+  <div style="border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9;">
+    <p>Weather data is currently unavailable for this area.</p>
+  </div>
+{% endif %}
+
+<p style="margin-top: 15px;"><a href="{{ url_for('main.home') }}">&larr; Back to Home</a></p>
+{% endblock %}
