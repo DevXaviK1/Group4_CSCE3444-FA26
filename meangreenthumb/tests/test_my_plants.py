@@ -114,3 +114,10 @@ def test_next_rejects_offsite_redirects(client, bad):
     login(client, 1)
     resp = client.post("/my-plants/add/2", data={"next": bad})
     assert resp.headers["Location"].endswith("/my-plants/")
+
+
+def test_calendar_link_shown_only_when_plants_saved(client):
+    login(client, 1)
+    assert b"View planting calendar" not in client.get("/my-plants/").data
+    client.post("/my-plants/add/1")
+    assert b'href="/calendar"' in client.get("/my-plants/").data

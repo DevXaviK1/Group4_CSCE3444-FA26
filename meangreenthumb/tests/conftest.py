@@ -3,7 +3,7 @@ so tests don't depend on the rest of the team's routes or templates."""
 from pathlib import Path
 
 import pytest
-from flask import Flask
+from flask import Blueprint, Flask
 from flask_login import LoginManager
 from jinja2 import ChoiceLoader, DictLoader, FileSystemLoader
 
@@ -38,6 +38,11 @@ def flask_app():
     @login_manager.user_loader
     def load_user(user_id):
         return db.session.get(User, int(user_id))
+
+    # Stand-in for Xavier's /calendar route so my_plants.html can build its link.
+    stub_main = Blueprint("main", "stub_main")
+    stub_main.add_url_rule("/calendar", "planting_calendar", lambda: "")
+    test_app.register_blueprint(stub_main)
 
     test_app.register_blueprint(my_plants_bp)
     test_app.register_blueprint(care_tasks_bp)
