@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Plant Suggestions — Mean Green Thumb{% endblock %}
+
+{% block content %}
+<h2>Plant Suggestions — Zone {{ zone_code }}</h2>
+
+<div class="card" style="margin-bottom: 16px;">
+  <form method="GET" action="{{ url_for('plants.suggestions') }}">
+    <input type="hidden" name="zone" value="{{ zone_code }}">
+
+    <label for="date">Planting Date</label>
+    <input type="date" id="date" name="date" value="{{ selected_date }}">
+
+    <label for="search">Search by Plant Name</label>
+    <input type="text" id="search" name="search" value="{{ search_query }}" placeholder="e.g., Tomato, Basil">
+
+    <label for="sort">Sort By</label>
+    <select id="sort" name="sort" style="padding: 8px; border: 1px solid #999; font-size: 14px;">
+      <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Plant Name (A-Z)</option>
+      <option value="planting_time" {% if sort_by == 'planting_time' %}selected{% endif %}>Recommended Planting Time</option>
+    </select>
+
+    <button type="submit">Update Suggestions</button>
+  </form>
+</div>
+
+{% if no_date_matches %}
+  <div class="result-box">
+    <p>No plants match Zone {{ zone_code }} for {{ selected_date }}. Try choosing another planting date.</p>
+  </div>
+{% elif no_search_matches %}
+  <div class="result-box">
+    <p>No results found for "{{ search_query }}". Try a different search term.</p>
+  </div>
+{% else %}
+  {% for plant in plants %}
+    <div class="card" style="margin-bottom: 12px;">
+      <h3 style="margin: 0;">{{ plant.name }}</h3>
+      <p style="margin: 4px 0;">{{ plant.description }}</p>
+      <p style="margin: 4px 0; font-size: 0.9em; color: #444;">
+        <strong>Recommended Planting Time:</strong> {{ plant.recommended_planting_time or "Spring - Fall" }}
+      </p>
+
+      {% if current_user.is_authenticated %}
+        {% if plant.plant_id in saved_ids %}
+          <p style="margin: 4px 0; color: #2e7d32; font-weight: bold;">&#10003; Saved in My Plants</p>
+        {% else %}
+          <form method="POST" action="{{ url_for('my_plants.add', plant_id=plant.plant_id) }}">
+            <input type="hidden" name="next" value="{{ request.full_path }}">
+            <input type="hidden" name="planting_date" value="{{ selected_date }}">
+            <button type="submit">Add to My Plants</button>
+          </form>
+        {% endif %}
+      {% else %}
+        <p style="margin: 4px 0; font-size: 0.85em;">
+          <a href="{{ url_for('auth.login') }}">Log in</a> to save this plant to My Plants.
+        </p>
+      {% endif %}
+    </div>
+  {% endfor %}
+{% endif %}
+{% endblock %}

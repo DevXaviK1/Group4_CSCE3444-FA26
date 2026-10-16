@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Plant Catalog (Admin) — Mean Green Thumb{% endblock %}
+
+{% block content %}
+<h2>Plant Catalog Management</h2>
+
+<div class="card" style="margin-bottom: 20px;">
+  <h3>{{ "Edit Plant: " ~ edit_plant.name if edit_plant else "Add New Plant" }}</h3>
+  <form method="POST" action="{{ url_for('admin.edit_plant', plant_id=edit_plant.plant_id) if edit_plant else url_for('admin.add_plant') }}">
+    <label for="name">Plant Name</label>
+    <input type="text" id="name" name="name" value="{{ edit_plant.name if edit_plant else '' }}" required>
+
+    <label for="description">Short Description</label>
+    <input type="text" id="description" name="description" value="{{ edit_plant.description if edit_plant else '' }}" required>
+
+    <label for="recommended_planting_time">Recommended Planting Time</label>
+    <input type="text" id="recommended_planting_time" name="recommended_planting_time" placeholder="e.g., March - May, September - October" value="{{ edit_plant.recommended_planting_time if edit_plant else '' }}" required>
+
+    <label>Suitable Growing Zones (select at least one)</label>
+    {% set selected_zones = edit_plant.zones | map(attribute='zone_code') | list if edit_plant else [] %}
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 0;">
+      {% for z in all_zones %}
+        <label style="display: inline-flex; align-items: center; gap: 4px; font-weight: normal; width: auto;">
+          <input type="checkbox" name="zones" value="{{ z.zone_code }}" style="width: auto;"
+                 {% if z.zone_code in selected_zones %}checked{% endif %}>
+          {{ z.zone_code }}
+        </label>
+      {% endfor %}
+    </div>
+
+    <button type="submit">{{ "Save Changes" if edit_plant else "Add Plant" }}</button>
+    {% if edit_plant %}
+      <a href="{{ url_for('admin.plant_catalog') }}" style="text-align: center; display: block; margin-top: 6px;">Cancel Edit</a>
+    {% endif %}
+  </form>
+</div>
+
+<h3>Existing Catalog ({{ plants|length }} plants)</h3>
+{% if plants %}
+  {% for plant in plants %}
+    <div class="card" style="margin-bottom: 12px;">
+      <div>
+        <strong>{{ plant.name }}</strong>
+        <p style="margin: 4px 0;">{{ plant.description }}</p>
+        <p style="margin: 4px 0; font-size: 0.9em;">
+          <strong>Planting Time:</strong> {{ plant.recommended_planting_time }}
+        </p>
+        <p style="margin: 4px 0; font-size: 0.9em;">
+          <strong>Zones:</strong> {{ plant.zones | map(attribute='zone_code') | join(', ') }}
+        </p>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <a href="{{ url_for('admin.plant_catalog', edit=plant.plant_id) }}"
+           style="padding: 8px 12px; border: 1px solid #2e7d32; color: #2e7d32; text-decoration: none; font-weight: bold;">
+          Edit
+        </a>
+        <form method="POST" action="{{ url_for('admin.remove_plant', plant_id=plant.plant_id) }}" style="margin: 0;">
+          <button type="submit" style="background: #c92a2a; border-color: #c92a2a;">Remove</button>
+        </form>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <p>No plants in the catalog yet.</p>
+{% endif %}
+{% endblock %}
