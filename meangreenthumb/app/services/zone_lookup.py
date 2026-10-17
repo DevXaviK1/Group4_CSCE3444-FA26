@@ -2,7 +2,7 @@
 Zip code -> USDA growing zone lookup (FR-01 / UC-01).
 
 Queries the USDA Plant Hardiness Zone API (phzmapi.org) for 5-digit US zip codes
-with a comprehensive local fallback table and prefix mapping so lookups succeed
+with a comprehensive local fallback table so lookups succeed
 rapidly and reliably even when offline or in automated tests.
 """
 import logging
@@ -11,7 +11,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 USDA_API_URL = "https://phzmapi.org/{zip_code}.json"
-TIMEOUT = 4
+TIMEOUT = 2
 
 # Local dataset of common US ZIP codes -> USDA Hardiness Zone codes
 _KNOWN_ZONES = {
@@ -50,8 +50,8 @@ def lookup_zone_code(zip_code: str) -> str | None:
     if not cleaned.isdigit() or len(cleaned) != 5:
         return None
 
-    # Reserved invalid / non-existent test ranges (000xx, 999xx)
-    if cleaned.startswith("000") or cleaned.startswith("999"):
+    # 000xx is not assigned to any US location
+    if cleaned.startswith("000"):
         return None
 
     # 1. Check local known dataset first for instant <3s performance (NFR 6.1)

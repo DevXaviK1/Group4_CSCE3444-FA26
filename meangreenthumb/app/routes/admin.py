@@ -76,6 +76,7 @@ def add_plant():
         description=description,
         recommended_planting_time=planting_time,
     )
+    db.session.add(plant)
     for code in zone_codes:
         zone = GrowingZone.query.filter_by(zone_code=code).first()
         if zone is None:
@@ -83,8 +84,6 @@ def add_plant():
             db.session.add(zone)
             db.session.flush()
         plant.zones.append(zone)
-
-    db.session.add(plant)
     db.session.commit()
     flash(f"Plant '{plant.name}' added to the catalog.", "success")
     return redirect(url_for("admin.plant_catalog"))
@@ -198,6 +197,7 @@ def suspend_user(user_id: int):
         flash("User not found.", "danger")
         return redirect(url_for("admin.user_management"))
 
+        # Alternative flow 3b: Cannot suspend own account or another administrator
     if target_user.user_id == current_user.user_id or target_user.is_admin:
         flash("Action rejected: Cannot suspend your own account or another administrator.", "danger")
         return redirect(url_for("admin.user_management"))
@@ -206,6 +206,7 @@ def suspend_user(user_id: int):
 
     target_user.is_suspended = True
 
+        # Main flow 4-6: Cascade delete tips if admin confirmed
     if remove_tips:
         Tip.query.filter_by(user_id=target_user.user_id).delete()
 

@@ -181,7 +181,7 @@ def test_suggestions_sort_by_name_and_planting_time(full_client):
     assert html_name.index("Basil") < html_name.index("Tomato")
 
     html_time = full_client.get("/suggestions?zone=8a&date=2026-04-15&sort=planting_time").get_data(as_text=True)
-    assert html_time.index("April - June") < html_time.index("March - May")
+    assert html_time.index("March - May") < html_time.index("April - June")
 
 
 def test_suggestions_uses_logged_in_users_zone_automatically(full_client):

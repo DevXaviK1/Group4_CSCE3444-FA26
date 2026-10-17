@@ -81,6 +81,14 @@ DEFAULT_CATALOG = [
 ]
 
 
+
+def first_planting_month(recommended_time: str | None) -> int:
+    """Return the month number (1-12) of the earliest month named in the
+    planting-time text, or 13 if none is named (sorts those last)."""
+    text = (recommended_time or "").lower()
+    hits = [(text.find(abbr), num) for abbr, num in _MONTH_ABBR_TO_NUM.items() if abbr in text]
+    return min(hits)[1] if hits else 13
+
 def ensure_seed_catalog() -> None:
     """Seed the default plant catalog if the database has no plants at all."""
     if Plant.query.first() is not None:
@@ -181,7 +189,7 @@ def suggestions():
     no_search_matches = bool(search_query) and not no_date_matches and len(matched_plants) == 0
 
     if sort_by == "planting_time":
-        matched_plants.sort(key=lambda p: ((p.recommended_planting_time or "").lower(), p.name.lower()))
+        matched_plants.sort(key=lambda p: (first_planting_month(p.recommended_planting_time), p.name.lower()))
     else:
         matched_plants.sort(key=lambda p: p.name.lower())
 

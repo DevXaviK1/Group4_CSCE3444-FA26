@@ -54,7 +54,8 @@
            style="padding: 8px 12px; border: 1px solid #2e7d32; color: #2e7d32; text-decoration: none; font-weight: bold;">
           Edit
         </a>
-        <form method="POST" action="{{ url_for('admin.remove_plant', plant_id=plant.plant_id) }}" style="margin: 0;">
+        <form method="POST" action="{{ url_for('admin.remove_plant', plant_id=plant.plant_id) }}" style="margin: 0;"
+      onsubmit="return confirm('Remove this plant from the catalog?');">
           <button type="submit" style="background: #c92a2a; border-color: #c92a2a;">Remove</button>
         </form>
       </div>
