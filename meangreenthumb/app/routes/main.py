@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from flask_login import current_user, login_required
 
+from app import db
 from app.models import GrowingZone
 from app.services.zone_lookup import lookup_zone_code
 from app.services.weather import (
@@ -18,22 +19,31 @@ main_bp = Blueprint("main", __name__)
 def home():
     """UC-01: Look Up Growing Zone. Works for guests and registered users."""
     zone_code = None
+    zip_code = None
 
     if request.method == "POST":
         zip_code = request.form.get("zip_code", "").strip()
         zone_code = lookup_zone_code(zip_code)
 
         if zone_code is None:
-            flash("Please enter a valid 5-digit zip code with a matching growing zone.")
+            flash("Please enter a valid 5-digit zip code with a matching growing zone.", "error")
+        else:
+            session["zone_code"] = zone_code
+            session["zip_code"] = zip_code
 
-    return render_template("home.html", zone_code=zone_code)
+            # UC-01 Postcondition: If user is logged in, save zip code & zone to their profile
+            if current_user.is_authenticated:
+                zone = GrowingZone.query.filter_by(zone_code=zone_code).first()
+                if zone is None:
+                    zone = GrowingZone(zone_code=zone_code)
+                    db.session.add(zone)
+                    db.session.flush()
+                current_user.zip_code = zip_code
+                current_user.zone_id = zone.zone_id
+                db.session.commit()
 
+    return render_template("home.html", zone_code=zone_code, zip_code=zip_code)
 
-# --- Placeholders for the rest of the team to build out ---
-# Sudip: plant suggestions route (UC-02) goes here or in its own blueprint
-
-
-# Xavier: weather dashboard + planting calendar routes (UC-04/05/06)
 
 @main_bp.route("/weather", methods=["GET"])
 def weather_forecast():
@@ -45,7 +55,7 @@ def weather_forecast():
     if current_user.is_authenticated and current_user.zip_code:
         zip_code = current_user.zip_code
     else:
-        zip_code = request.args.get("zip_code")
+        zip_code = request.args.get("zip_code") or session.get("zip_code")
 
     if not zip_code:
         flash("Please enter a zip code to view weather.", "warning")
@@ -95,4 +105,3 @@ def planting_calendar():
 
     calendar = generate_planting_calendar(current_user.saved_plants, current_user.zip_code)
     return render_template("planting_calendar.html", calendar=calendar)
-# Pete: community tips, My Plants, care tasks (UC-07/08/09) -- see TODO.md

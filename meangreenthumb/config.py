@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -7,6 +8,7 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-change-this")
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "meangreenthumb.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
 
     # Set to False in tests so the background scheduler doesn't start
     # (APScheduler + an in-memory test DB don't play well together).

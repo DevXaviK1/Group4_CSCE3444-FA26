@@ -13,6 +13,10 @@
     <nav class="account-nav">
       {% if current_user.is_authenticated %}
         <span>{{ current_user.email }}</span>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('admin.plant_catalog') }}">Admin Catalog</a>
+          <a href="{{ url_for('admin.user_management') }}">Admin Users</a>
+        {% endif %}
         <a href="{{ url_for('auth.logout') }}">Log Out</a>
       {% else %}
         <a href="{{ url_for('auth.login') }}">Log In</a>
@@ -35,7 +39,7 @@
 
   <nav class="bottom-nav">
     <a href="{{ url_for('main.home') }}">Home</a>
-    <a href="#">Suggestions</a>
+    <a href="{{ url_for('plants.suggestions') }}">Suggestions</a>
     <a href="{{ url_for('my_plants.index') }}">My Plants</a>
     <a href="{{ url_for('main.weather_forecast', zip_code=zip_code if zip_code else (current_user.zip_code if current_user.is_authenticated else '')) }}">Weather</a>
     <a href="{{ url_for('tips.feed') }}">Tips</a>
