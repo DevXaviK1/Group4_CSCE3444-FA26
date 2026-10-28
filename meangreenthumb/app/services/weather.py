@@ -19,7 +19,7 @@ from app.models import WeatherCache
 logger = logging.getLogger(__name__)
 
 # NWS requires an identifying User-Agent. Put a real contact here before deploying.
-USER_AGENT = "MeanGreenThumb/1.0 (https://mean-green-thumb.onrender.com)"
+USER_AGENT = "MeanGreenThumb/1.0 (https://mean-green-thumb.onrender.com; meangreenthumb26@gmail.com)"
 NWS = "https://api.weather.gov"
 TIMEOUT = 10
 ZIP_RE = re.compile(r"^\d{5}$")
