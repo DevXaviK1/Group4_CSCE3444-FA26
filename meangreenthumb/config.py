@@ -6,7 +6,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-change-this")
-    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "meangreenthumb.db")
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DATABASE_URL", "sqlite:///" + os.path.join(basedir, "meangreenthumb.db")
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
 
