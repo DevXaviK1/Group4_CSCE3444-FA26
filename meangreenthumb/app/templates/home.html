@@ -3,16 +3,27 @@
 
 {% block content %}
   <div class="card">
-    <p>Find out what grows well where you live, and get a personalized plan to grow it.</p>
+    <h1 style="margin: 0; font-size: 20px;">Find Your Growing Zone</h1>
+    <p id="zip-help">Find out what grows well where you live, and get a personalized plan to grow it.</p>
 
-    <form method="POST" action="{{ url_for('main.home') }}">
+    <form method="POST" action="{{ url_for('main.home') }}" aria-label="Zip code growing zone lookup">
       <label for="zip_code">Enter your zip code</label>
-      <input type="text" id="zip_code" name="zip_code" maxlength="5" value="{{ zip_code or '' }}" required>
+      <input
+        type="text"
+        id="zip_code"
+        name="zip_code"
+        maxlength="5"
+        inputmode="numeric"
+        autocomplete="postal-code"
+        aria-describedby="zip-help"
+        value="{{ zip_code or '' }}"
+        required
+      >
       <button type="submit">Submit</button>
     </form>
 
     {% if zone_code %}
-      <div class="result-box">
+      <div class="result-box" role="region" aria-live="polite" aria-label="Growing zone result">
         <p>Your Growing Zone: <strong>{{ zone_code }}</strong></p>
         <a href="{{ url_for('plants.suggestions', zone=zone_code) }}">View Plant Suggestions &rarr;</a>
       </div>

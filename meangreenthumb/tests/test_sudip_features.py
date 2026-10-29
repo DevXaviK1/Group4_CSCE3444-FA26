@@ -3,6 +3,7 @@
 - F-05: Plant Suggestion List (FR-02 / UC-02)
 - F-06: User Registration, Log In, and Session Timeout (FR-03 / UC-03)
 - F-07: Plant Catalog Management — Admin (FR-11 / UC-11)
+- UC-12 / FR-12: Admin Account Suspension & Reactivation + Accessibility Markup
 """
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
@@ -11,7 +12,7 @@ import pytest
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db
-from app.models import GrowingZone, Plant, SavedPlant, User
+from app.models import GrowingZone, Plant, SavedPlant, Tip, User
 from app.routes.admin import admin_bp
 from app.routes.auth import auth_bp
 from app.routes.plants import plants_bp
@@ -206,7 +207,7 @@ def test_suggestions_invalid_date_falls_back_to_today(full_client):
 
 
 # ==============================================================================
-# F-06 / FR-03 / UC-03: User Registration, Log In, & Timeout (9 tests)
+# F-06 / FR-03 / UC-03: User Registration, Log In, & Timeout (10 tests)
 # ==============================================================================
 
 def test_register_creates_hashed_user_with_zone_and_logs_in(full_client):
@@ -287,8 +288,18 @@ def test_session_expires_after_30_minutes_of_inactivity(full_client):
     assert any("session has expired" in msg for _, msg in flashes(full_client))
 
 
+def test_session_remains_active_within_30_minutes(full_client):
+    login(full_client, 1)
+    recent_ts = (datetime.now(timezone.utc) - timedelta(minutes=29)).timestamp()
+    with full_client.session_transaction() as sess:
+        sess["last_active"] = recent_ts
+
+    resp = full_client.get("/my-plants/")
+    assert resp.status_code == 200
+
+
 # ==============================================================================
-# F-07 / FR-11 / UC-11: Plant Catalog Management — Admin (8 tests)
+# F-07 / FR-11 / UC-11: Plant Catalog Management — Admin (10 tests)
 # ==============================================================================
 
 def test_non_admin_cannot_access_plant_catalog(full_client):
@@ -366,6 +377,22 @@ def test_admin_can_edit_existing_plant_and_zones(full_client):
     assert {z.zone_code for z in basil.zones} == {"8a", "9b"}
 
 
+def test_admin_edit_plant_rejects_blank_fields_and_duplicate_name(full_client):
+    login(full_client, 10)
+    full_client.post(
+        "/admin/plants/2/edit",
+        data={"name": "", "description": "desc", "recommended_planting_time": "May", "zones": []},
+    )
+    assert any("All fields" in msg for _, msg in flashes(full_client))
+
+    full_client.post(
+        "/admin/plants/2/edit",
+        data={"name": "Tomato", "description": "desc", "recommended_planting_time": "May", "zones": ["8a"]},
+    )
+    assert any("already exists" in msg for _, msg in flashes(full_client))
+    assert db.session.get(Plant, 2).name == "Basil"
+
+
 def test_admin_can_remove_unsaved_plant(full_client):
     login(full_client, 10)
     resp = full_client.post("/admin/plants/3/remove")  # Spinach is not saved by anyone
@@ -383,3 +410,135 @@ def test_admin_cannot_remove_plant_saved_in_users_my_plants(full_client):
     assert resp.status_code == 302
     assert db.session.get(Plant, 1) is not None
     assert any("currently saved in one or more users' My Plants" in msg for _, msg in flashes(full_client))
+
+
+def test_admin_edit_or_remove_nonexistent_plant_returns_404(full_client):
+    login(full_client, 10)
+    resp_edit = full_client.post(
+        "/admin/plants/9999/edit",
+        data={"name": "Ghost", "description": "desc", "recommended_planting_time": "May", "zones": ["8a"]},
+    )
+    assert resp_edit.status_code == 404
+
+    resp_remove = full_client.post("/admin/plants/9999/remove")
+    assert resp_remove.status_code == 404
+
+
+# ==============================================================================
+# UC-12 / FR-12: Admin Account Suspension & Reactivation (8 tests)
+# ==============================================================================
+
+def test_non_admin_cannot_access_user_management_or_suspend(full_client):
+    login(full_client, 1)  # Regular user
+    resp = full_client.get("/admin/users")
+    assert resp.status_code == 302
+    assert any("Administrator access required" in msg for _, msg in flashes(full_client))
+
+    resp_susp = full_client.post("/admin/users/2/suspend")
+    assert resp_susp.status_code == 302
+    assert db.session.get(User, 2).is_suspended is False
+
+
+def test_admin_can_view_and_search_user_management(full_client):
+    login(full_client, 10)
+    resp = full_client.get("/admin/users")
+    assert resp.status_code == 200
+    html = resp.get_data(as_text=True)
+    assert "a@test.com" in html
+    assert "b@test.com" in html
+
+    resp_search = full_client.get("/admin/users?search=a@test.com")
+    html_search = resp_search.get_data(as_text=True)
+    assert "a@test.com" in html_search
+    assert "b@test.com" not in html_search
+
+
+def test_admin_can_suspend_user_and_keep_tips_by_default(full_client):
+    zone_8a = GrowingZone.query.filter_by(zone_code="8a").one()
+    db.session.add(Tip(user_id=1, zone_id=zone_8a.zone_id, text="Water in the morning."))
+    db.session.commit()
+
+    login(full_client, 10)
+    resp = full_client.post("/admin/users/1/suspend", data={"remove_tips": "no"})
+    assert resp.status_code == 302
+    assert db.session.get(User, 1).is_suspended is True
+    assert Tip.query.filter_by(user_id=1).count() == 1
+    assert any("Account a@test.com suspended." in msg for _, msg in flashes(full_client))
+
+
+def test_admin_suspend_with_remove_tips_deletes_user_tips(full_client):
+    zone_8a = GrowingZone.query.filter_by(zone_code="8a").one()
+    db.session.add(Tip(user_id=2, zone_id=zone_8a.zone_id, text="Mulch well."))
+    db.session.commit()
+    assert Tip.query.filter_by(user_id=2).count() == 1
+
+    login(full_client, 10)
+    resp = full_client.post("/admin/users/2/suspend", data={"remove_tips": "yes"})
+    assert resp.status_code == 302
+    assert db.session.get(User, 2).is_suspended is True
+    assert Tip.query.filter_by(user_id=2).count() == 0
+
+
+def test_admin_cannot_suspend_self_or_another_admin(full_client):
+    other_admin = User(
+        user_id=11,
+        email="admin2@test.com",
+        password_hash=generate_password_hash("adminpass"),
+        is_admin=True,
+    )
+    db.session.add(other_admin)
+    db.session.commit()
+
+    login(full_client, 10)
+    full_client.post("/admin/users/10/suspend")
+    assert db.session.get(User, 10).is_suspended is False
+    assert any("Cannot suspend your own account or another administrator" in msg for _, msg in flashes(full_client))
+
+    full_client.post("/admin/users/11/suspend")
+    assert db.session.get(User, 11).is_suspended is False
+
+
+def test_admin_can_reactivate_suspended_user(full_client):
+    u = db.session.get(User, 1)
+    u.is_suspended = True
+    u.password_hash = generate_password_hash("mypassword")
+    db.session.commit()
+
+    login(full_client, 10)
+    resp = full_client.post("/admin/users/1/reactivate")
+    assert resp.status_code == 302
+    assert db.session.get(User, 1).is_suspended is False
+    assert any("Account a@test.com reactivated." in msg for _, msg in flashes(full_client))
+
+    full_client.get("/logout")
+    login_resp = full_client.post("/login", data={"email": "a@test.com", "password": "mypassword"})
+    assert login_resp.status_code == 302
+    assert not any("suspended" in msg for _, msg in flashes(full_client))
+
+
+def test_admin_suspend_or_reactivate_nonexistent_user_flashes_error(full_client):
+    login(full_client, 10)
+    full_client.post("/admin/users/9999/suspend")
+    assert any("User not found" in msg for _, msg in flashes(full_client))
+
+    full_client.post("/admin/users/9999/reactivate")
+    assert any("User not found" in msg for _, msg in flashes(full_client))
+
+
+def test_accessibility_landmarks_skip_link_and_labels_rendered(full_app):
+    from pathlib import Path
+    from jinja2 import FileSystemLoader
+    import app as app_pkg
+
+    # conftest stubs base.html; use the real templates so the skip link is rendered
+    full_app.jinja_loader = FileSystemLoader(str(Path(app_pkg.__file__).parent / "templates"))
+    full_app.jinja_env.cache.clear()
+    resp = full_app.test_client().get("/")
+    html = resp.get_data(as_text=True)
+    assert 'class="skip-link"' in html
+    assert 'href="#main-content"' in html
+    assert 'id="main-content"' in html
+    assert 'aria-label="Account navigation"' in html
+    assert 'aria-label="Primary navigation"' in html
+    assert '<label for="zip_code">' in html
+    assert 'aria-describedby="zip-help"' in html
