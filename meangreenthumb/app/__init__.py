@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
@@ -35,6 +35,11 @@ def create_app():
     app.register_blueprint(my_plants_bp)
     app.register_blueprint(care_tasks_bp)
     app.register_blueprint(tips_bp)
+
+    @app.errorhandler(404)
+    def page_not_found(error):
+        # Branded 404 so the page keeps the site header, landmarks and navigation.
+        return render_template("404.html"), 404
 
     with app.app_context():
         db.create_all()

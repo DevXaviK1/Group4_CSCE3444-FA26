@@ -2,7 +2,7 @@
 {% block title %}Plant Suggestions — Mean Green Thumb{% endblock %}
 
 {% block content %}
-<h2>Plant Suggestions — Zone {{ zone_code }}</h2>
+<h1>Plant Suggestions — Zone {{ zone_code }}</h1>
 
 <div class="card" style="margin-bottom: 16px;">
   <form method="GET" action="{{ url_for('plants.suggestions') }}">
@@ -35,7 +35,7 @@
 {% else %}
   {% for plant in plants %}
     <div class="card" style="margin-bottom: 12px;">
-      <h3 style="margin: 0;">{{ plant.name }}</h3>
+      <h2 style="margin: 0;">{{ plant.name }}</h2>
       <p style="margin: 4px 0;">{{ plant.description }}</p>
       <p style="margin: 4px 0; font-size: 0.9em; color: #444;">
         <strong>Recommended Planting Time:</strong> {{ plant.recommended_planting_time or "Spring - Fall" }}
