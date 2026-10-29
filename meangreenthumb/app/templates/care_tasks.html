@@ -18,7 +18,7 @@
       <input type="hidden" name="completed" value="{{ 0 if task.completed else 1 }}">
       <button type="submit">{{ "Undo" if task.completed else "Mark done" }}</button>
     </form>
-    <span{% if task.completed %} style="text-decoration: line-through; opacity: 0.6;"{% endif %}>
+      <span{% if task.completed %} style="text-decoration: line-through; color: #555;"{% endif %}>
       {{ task.task_description }}
     </span>
     &mdash;
