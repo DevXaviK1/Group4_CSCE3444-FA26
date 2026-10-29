@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>User Management</h2>
+<h1>User Management</h1>
 
 <form method="GET" action="{{ url_for('admin.user_management') }}" style="margin-bottom: 20px;">
   <input type="text" name="search" value="{{ search }}" placeholder="Search by email" style="padding: 6px; width: 250px;">

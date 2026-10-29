@@ -84,3 +84,6 @@ button {
   border-right: 1px solid #ccc;
 }
 .bottom-nav a:last-child { border-right: none; }
+
+/* Section headings inside pages (cards, forecast blocks, catalog sections). */
+.content h2 { font-size: 1.2rem; }

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Planting Calendar</h2>
+<h1>Planting Calendar</h1>
 
 {% for entry in calendar %}
   <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-    <h3>{{ entry.name }}</h3>
+    <h2>{{ entry.name }}</h2>
     <p><strong>Plant by:</strong> {{ entry.plant_by }}</p>
     <p><strong>Harvest:</strong> {{ entry.harvest }}</p>
     {% if entry.is_fallback %}

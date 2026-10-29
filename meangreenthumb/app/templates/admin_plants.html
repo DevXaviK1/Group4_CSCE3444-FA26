@@ -2,10 +2,10 @@
 {% block title %}Plant Catalog (Admin) — Mean Green Thumb{% endblock %}
 
 {% block content %}
-<h2>Plant Catalog Management</h2>
+<h1>Plant Catalog Management</h1>
 
 <div class="card" style="margin-bottom: 20px;">
-  <h3>{{ "Edit Plant: " ~ edit_plant.name if edit_plant else "Add New Plant" }}</h3>
+  <h2>{{ "Edit Plant: " ~ edit_plant.name if edit_plant else "Add New Plant" }}</h2>
   <form method="POST" action="{{ url_for('admin.edit_plant', plant_id=edit_plant.plant_id) if edit_plant else url_for('admin.add_plant') }}">
     <label for="name">Plant Name</label>
     <input type="text" id="name" name="name" value="{{ edit_plant.name if edit_plant else '' }}" required>
@@ -35,7 +35,7 @@
   </form>
 </div>
 
-<h3>Existing Catalog ({{ plants|length }} plants)</h3>
+<h2>Existing Catalog ({{ plants|length }} plants)</h2>
 {% if plants %}
   {% for plant in plants %}
     <div class="card" style="margin-bottom: 12px;">
