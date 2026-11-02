@@ -2,6 +2,14 @@
 {% block content %}
 <h1>Weather — Zip {{ zip_code }}</h1>
 
+{% if current_user.is_authenticated %}
+<form method="post" action="{{ url_for('main.set_notifications') }}" style="margin-bottom: 15px;">
+  <input type="hidden" name="enabled" value="{{ 0 if current_user.notifications_enabled else 1 }}">
+  <span>Freeze alert emails: <strong>{{ "On" if current_user.notifications_enabled else "Off" }}</strong></span>
+  <button type="submit">{{ "Turn off" if current_user.notifications_enabled else "Turn on" }}</button>
+</form>
+{% endif %}
+
 {% if active_alert and current_user.is_authenticated %}
   <div class="alert-banner" style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px; margin-bottom: 15px;">
     <h2 style="margin: 0 0 5px 0; font-size: 1rem;"><span aria-hidden="true">⚠️</span> Freeze Alert active for your area!</h2>

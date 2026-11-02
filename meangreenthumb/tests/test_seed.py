@@ -31,6 +31,7 @@ def test_seed_creates_admin_user_catalog_and_tips(seed_app, monkeypatch):
     admin = User.query.filter_by(email=ADMIN_EMAIL).first()
     user = User.query.filter_by(email=USER_EMAIL).first()
     assert admin.is_admin is True and user.is_admin is False
+    assert user.notifications_enabled is True  # so the demo can show an alert
     assert check_password_hash(admin.password_hash, DEFAULT_PASSWORD)
     assert Plant.query.count() >= 5
     assert Tip.query.count() == 3
