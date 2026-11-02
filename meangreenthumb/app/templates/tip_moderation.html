@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Tip Moderation</h1>
+
+<form method="get" action="{{ url_for('admin.tip_moderation') }}" style="margin-bottom: 20px;">
+  <label for="zone-filter">Growing zone</label>
+  <select id="zone-filter" name="zone">
+    <option value="">All zones</option>
+    {% for code in zone_codes %}
+    <option value="{{ code }}"{% if code == zone %} selected{% endif %}>{{ code }}</option>
+    {% endfor %}
+  </select>
+  <label for="author-filter">Author email</label>
+  <input type="text" id="author-filter" name="author" value="{{ author }}">
+  <button type="submit">Filter</button>
+  {% if zone or author %}
+  <a href="{{ url_for('admin.tip_moderation') }}">Clear filters</a>
+  {% endif %}
+</form>
+
+{% if tips %}
+<ul style="list-style: none; padding: 0;">
+  {% for tip in tips %}
+  <li class="tip" style="border: 1px solid #ccc; padding: 12px 16px; margin-bottom: 12px; border-radius: 4px; max-width: 650px;">
+    <div style="white-space: pre-wrap;">{{ tip.text }}</div>
+    <small>{{ tip.author.email }} &middot; Zone {{ tip.zone.zone_code }} &middot; {{ tip.timestamp.strftime("%b %d, %Y %I:%M %p") }} UTC</small>
+    <div style="margin-top: 8px;">
+      <a href="{{ url_for('admin.remove_tip', tip_id=tip.tip_id) }}" aria-label="Remove tip by {{ tip.author.email }}">Remove</a>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% elif zone or author %}
+<p>No tips match those filters.</p>
+{% else %}
+<p>No tips to moderate.</p>
+{% endif %}
+{% endblock %}

@@ -231,3 +231,71 @@ def reactivate_user(user_id: int):
     db.session.commit()
     flash(f"Account {target_user.email} reactivated.", "success")
     return redirect(url_for("admin.user_management"))
+
+
+# --------------------------------------------------------- UC-10 / FR-10 ----
+def _tip_admin_required():
+    """Return a redirect for non-admins, or None when the user is an admin."""
+    if not current_user.is_admin:
+        flash("Unauthorized: Administrator access required.", "danger")
+        return redirect(url_for("main.home"))
+    return None
+
+
+@admin_bp.route("/tips", methods=["GET"])
+@login_required
+def tip_moderation():
+    denied = _tip_admin_required()
+    if denied:
+        return denied
+
+    zone = request.args.get("zone", "").strip()
+    author = request.args.get("author", "").strip()
+
+    # UC-10 step 2: every community tip, newest first.
+    query = Tip.query.join(User, Tip.user_id == User.user_id).join(
+        GrowingZone, Tip.zone_id == GrowingZone.zone_id
+    )
+    # UC-10 alt flow 3a: filter by growing zone or author.
+    if zone:
+        query = query.filter(GrowingZone.zone_code == zone)
+    if author:
+        query = query.filter(User.email.ilike(f"%{author}%"))
+    tips = query.order_by(Tip.timestamp.desc(), Tip.tip_id.desc()).all()
+
+    zone_codes = [
+        z.zone_code
+        for z in GrowingZone.query.join(Tip, Tip.zone_id == GrowingZone.zone_id)
+        .distinct()
+        .order_by(GrowingZone.zone_code)
+        .all()
+    ]
+    return render_template(
+        "tip_moderation.html",
+        tips=tips,
+        zone=zone,
+        author=author,
+        zone_codes=zone_codes,
+    )
+
+
+@admin_bp.route("/tips/<int:tip_id>/remove", methods=["GET", "POST"])
+@login_required
+def remove_tip(tip_id: int):
+    denied = _tip_admin_required()
+    if denied:
+        return denied
+
+    tip = db.session.get(Tip, tip_id)
+    if tip is None:
+        abort(404)
+
+    # UC-10 step 4: ask for confirmation. Nothing is deleted on GET.
+    if request.method == "GET":
+        return render_template("tip_remove_confirm.html", tip=tip)
+
+    # UC-10 steps 5-6: delete the tip and confirm the removal.
+    db.session.delete(tip)
+    db.session.commit()
+    flash("Tip removed.", "success")
+    return redirect(url_for("admin.tip_moderation"))
