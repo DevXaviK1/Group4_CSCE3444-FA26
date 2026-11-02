@@ -41,8 +41,10 @@ def create_app():
         # Branded 404 so the page keeps the site header, landmarks and navigation.
         return render_template("404.html"), 404
 
+    from app.cli import send_test_email
     from app.seed import seed_demo
     app.cli.add_command(seed_demo)
+    app.cli.add_command(send_test_email)
 
     with app.app_context():
         db.create_all()

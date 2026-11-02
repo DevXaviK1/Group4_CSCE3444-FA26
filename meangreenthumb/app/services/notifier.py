@@ -27,7 +27,8 @@ def send_alert_email(to_email: str, message_body: str) -> bool:
     msg["From"] = sender_email
     msg["To"] = to_email
     msg["Subject"] = "Mean Green Thumb: Severe Weather Alert"
-    msg.attach(MIMEText(message_body, "plain"))
+    link = f"{current_app.config.get('APP_URL', '').rstrip('/')}/weather/alerts"
+    msg.attach(MIMEText(f"{message_body}\n\nView alert details: {link}", "plain"))
 
     try:
         with smtplib.SMTP(smtp_server, smtp_port, timeout=10) as server:

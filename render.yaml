@@ -11,3 +11,12 @@ services:
         value: 3.12.7
       - key: SECRET_KEY
         generateValue: true
+      # Alert emails: Render asks for the two secrets in the dashboard; they are never stored in the repo.
+      - key: MAIL_SERVER
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
