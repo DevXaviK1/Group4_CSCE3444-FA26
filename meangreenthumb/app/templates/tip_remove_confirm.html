@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Remove this tip?</h1>
+
+<blockquote style="white-space: pre-wrap; max-width: 650px;">{{ tip.text }}</blockquote>
+<p><small>{{ tip.author.email }} &middot; Zone {{ tip.zone.zone_code }} &middot; {{ tip.timestamp.strftime("%b %d, %Y %I:%M %p") }} UTC</small></p>
+<p>This removes the tip from the community feed and cannot be undone.</p>
+
+<form method="post" action="{{ url_for('admin.remove_tip', tip_id=tip.tip_id) }}" style="display: inline;">
+  <button type="submit">Remove tip</button>
+</form>
+<a href="{{ url_for('admin.tip_moderation') }}">Cancel</a>
+{% endblock %}
