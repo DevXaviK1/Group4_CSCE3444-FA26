@@ -35,7 +35,7 @@ DEMO_TIPS = [
 ]
 
 
-def _get_or_create_user(email, password, is_admin, zone):
+def _get_or_create_user(email, password, is_admin, zone, notifications=False):
     user = User.query.filter_by(email=email).first()
     if user is None:
         user = User(email=email, zip_code=DEMO_ZIP, zone_id=zone.zone_id)
@@ -43,6 +43,7 @@ def _get_or_create_user(email, password, is_admin, zone):
     user.password_hash = generate_password_hash(password)
     user.is_admin = is_admin
     user.is_suspended = False
+    user.notifications_enabled = notifications
     user.zip_code = DEMO_ZIP
     user.zone_id = zone.zone_id
     db.session.flush()
@@ -62,7 +63,7 @@ def run_seed(password):
         db.session.flush()
 
     _get_or_create_user(ADMIN_EMAIL, password, True, zone)
-    user = _get_or_create_user(USER_EMAIL, password, False, zone)
+    user = _get_or_create_user(USER_EMAIL, password, False, zone, notifications=True)
 
     from app.models import Plant
 

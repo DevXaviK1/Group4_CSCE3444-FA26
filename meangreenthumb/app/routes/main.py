@@ -79,6 +79,20 @@ def weather_forecast():
     )
 
 
+@main_bp.route("/weather/notifications", methods=["POST"])
+@login_required
+def set_notifications():
+    """FR-05: turn freeze/frost alert emails on or off for the logged-in user."""
+    enabled = request.form.get("enabled") == "1"
+    current_user.notifications_enabled = enabled
+    db.session.commit()
+    flash(
+        "Freeze alert emails are on." if enabled else "Freeze alert emails are off.",
+        "success",
+    )
+    return redirect(url_for("main.weather_forecast"))
+
+
 @main_bp.route("/weather/alerts", methods=["GET"])
 @login_required
 def alert_details():

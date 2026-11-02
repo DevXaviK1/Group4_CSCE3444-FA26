@@ -72,6 +72,8 @@ def register():
             password_hash=generate_password_hash(password),
             zip_code=zip_code,
             zone_id=zone.zone_id,
+            # FR-05: alert emails are opt-in
+            notifications_enabled=request.form.get("notifications_enabled") == "1",
         )
         db.session.add(user)
         db.session.commit()
