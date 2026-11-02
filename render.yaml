@@ -11,12 +11,7 @@ services:
         value: 3.12.7
       - key: SECRET_KEY
         generateValue: true
-      # Alert emails: Render asks for the two secrets in the dashboard; they are never stored in the repo.
-      - key: MAIL_SERVER
-        value: smtp.gmail.com
-      - key: MAIL_PORT
-        value: "587"
-      - key: MAIL_USERNAME
-        sync: false
-      - key: MAIL_PASSWORD
-        sync: false
+      # Alert emails: Render's free tier blocks outbound SMTP (ports 25, 465, 587),
+      # so the hosted site only logs them. To send real mail, set MAIL_SERVER,
+      # MAIL_USERNAME and MAIL_PASSWORD (see config.py) when running locally
+      # or on a paid instance.
