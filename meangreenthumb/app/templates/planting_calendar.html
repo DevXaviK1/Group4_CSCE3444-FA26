@@ -12,4 +12,7 @@
     {% endif %}
   </div>
 {% endfor %}
+{% if calendar and not calendar[0].is_fallback %}
+  <p style="font-size: 0.85em; color: #555;">Dates are average frost dates for your growing zone.</p>
+{% endif %}
 {% endblock %}
