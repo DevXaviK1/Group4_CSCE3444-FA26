@@ -5,12 +5,14 @@ services:
     plan: free
     rootDir: meangreenthumb
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn run:app --workers 1 --threads 4 --bind 0.0.0.0:$PORT
+    startCommand: flask --app run seed-demo && gunicorn run:app --workers 1 --threads 4 --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.7
       - key: SECRET_KEY
         generateValue: true
+      - key: DEMO_PASSWORD
+        sync: false
       # Alert emails: Render's free tier blocks outbound SMTP (ports 25, 465, 587),
       # so the hosted site only logs them. To send real mail, set MAIL_SERVER,
       # MAIL_USERNAME and MAIL_PASSWORD (see config.py) when running locally
